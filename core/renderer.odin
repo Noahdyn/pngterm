@@ -28,7 +28,7 @@ render_png :: proc(opts := Options{}) -> (ok: bool) {
 
 	err: png.Error
 	img: ^png.Image
-	png_opts := png.Options{.return_metadata}
+	png_opts := png.Options{.return_metadata, .alpha_add_if_missing}
 
 	img, err = png.load(opts.file, png_opts)
 	defer png.destroy(img)
@@ -82,8 +82,8 @@ generate_pixels :: proc(img: ^png.Image, height, width: int) -> []Pixel {
 				u := f32(x) / f32(width)
 				v := f32(y) / f32(height)
 
-				src_x := i32(u * f32(img.width))
-				src_y := i32(v * f32(img.height))
+				src_x := min(i32(u * f32(img.width)), i32(img.width - 1))
+				src_y := min(i32(v * f32(img.height)), i32(img.height - 1))
 				src_idx := (src_y * i32(img.width)) + src_x
 
 				pixels[idx] = original_pixels[src_idx]
